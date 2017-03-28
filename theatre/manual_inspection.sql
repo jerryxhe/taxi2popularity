@@ -1,0 +1,1 @@
+SELECT nyct2010.gid,nyct2010.ntaname,nyct2010.ntacode FROM nyct2010,custom_locations where ST_Intersects(nyct2010.geom, ST_SetSRID(ST_MakePoint(custom_locations.lon, custom_locations.lat), 4326)) GROUP BY nyct2010.gid;
