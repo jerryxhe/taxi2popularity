@@ -30,9 +30,46 @@ SELECT
   ROUND(pickup_longitude, 4) AS pickup_lon,
   ROUND(pickup_lattitude, 4) AS pickup_lat,
   COUNT(*) AS vehicle_count,
-  AVG(passenger_count) AS avg_passenger_per_taxi
+  AVG(passenger_count) AS avg_passenger_per_taxi,
+  AVG(total_amount) AS avg_fare,
+  AVG(dropoff_datetime - pickup_datetime) AS avg_ride_duration
 FROM theatre_trips_2011
 GROUP BY
   pickup_month,pickup_hour,pickup_lon,pickup_lat
   
+CREATE TABLE ambassador_theatre_dest_summary_by_location_id AS
+SELECT dropoff_location_id,
+ EXTRACT(year from pickup_datetime) AS pickup_year,
  
+ EXTRACT(hour from pickup_datetime) AS pickup_hour,
+ COUNT(*) AS vehicle_count,
+ AVG(passenger_count) AS avg_passenger_per_taxi,
+ AVG(total_amount) AS avg_fare,
+ AVG(dropoff_datetime - pickup_datetime) AS avg_ride_duration
+FROM trips WHERE (dropoff_location_id IS NOT NULL)
+GROUP BY pickup_year,pickup_month,pickup_hour,dropoff_location_id;
+  
+ 
+CREATE TABLE theatre_weather_dest_2009 AS
+SELECT 
+    date_trunc('week', pickup_datetime) AS week_start,
+    EXTRACT(hour FROM pickup_datetime) AS pickup_hour,
+    dropoff_location_id, 
+    CASE WHEN (w.precipitation+w.snow_depth+w.snowfall) > 5 
+        THEN 'bad_weather' 
+        ELSE 'good_weather' 
+    END AS weather_condition, 
+    ROUND(pickup_longitude, 4) AS pickup_lon, 
+    ROUND(pickup_latitude, 4) AS pickup_lat, 
+    COUNT(*) AS vehicle_count,
+    AVG(passenger_count) AS avg_passenger_per_taxi,
+    AVG(total_amount) AS avg_fare,
+    AVG(dropoff_datetime - pickup_datetime) AS avg_ride_duration
+FROM theatre_trips_2009,central_park_weather_observations w
+WHERE w.date = date(pickup_datetime)
+GROUP BY 1,2,3,4,5,6
+ORDER BY 1,3,6;
+
+DELETE FROM theatre_weather_dest_2009 WHERE week_start < '2009-01-01'
+
+
