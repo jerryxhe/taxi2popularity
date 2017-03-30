@@ -37,7 +37,8 @@ theatre_addresses = {
     'Cort':'138 W 48th St, New York, NY 10036',
     'Music Box':'239 W 45th St, New York, NY 10036',
     'American Airlines':'227 W 42nd St, New York, NY 10036',
-    'Vivian Beaumont':'50 Lincoln Center Plaza #1, New York, NY 10023' 
+    'Vivian Beaumont':'50 Lincoln Center Plaza #1, New York, NY 10023',
+    'Koch':'20 Lincoln Center Plaza, New York, NY 10023' 
 }
 
 theatres = []
