@@ -1,3 +1,6 @@
+from pg import DB
+db = DB(dbname='nyc-taxi-data')
+
 theatre_addresses = {
     'Ambassador':'219 W 49th St, New York, NY 10019',
     'Gershwin':"222 W 51st St, New York, NY 10019",
@@ -33,7 +36,7 @@ theatre_addresses = {
     'Studio 54':'254 W 54th St, New York, NY 10019',
     'Helen Hays':'240 W 44th St, New York, NY 10036',
     'Barrymore':'243 W 47th St, New York, NY 10036',
-    'Eugene O'Neill':'230 W 49th St, New York, NY 10019',
+    'Eugene O\'Neill':'230 W 49th St, New York, NY 10019',
     'Cort':'138 W 48th St, New York, NY 10036',
     'Music Box':'239 W 45th St, New York, NY 10036',
     'American Airlines':'227 W 42nd St, New York, NY 10036',
@@ -46,6 +49,8 @@ from geopy.geocoders import Nominatim
 geolocator = Nominatim()
 for name,addr in theatre_addresses.items():
     location = geolocator.geocode(addr)
+    if location is None:
+        continue
     print(name, "-> ", location.latitude, location.longitude)
     theatres.append({'name':name, 'address':addr, 'lat':location.latitude, 'lon':location.longitude})
 
