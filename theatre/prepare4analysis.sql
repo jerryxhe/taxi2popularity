@@ -1,6 +1,29 @@
 /* only pickups from Theatre district or dropoffs in Theatre district */
 DELETE FROM trips WHERE (pickup_nyct2010_gid NOT IN (21, 901, 902, 1162, 1163, 1283, 1699)) AND (dropoff_nyct2010_gid NOT IN (21, 901, 902, 1162, 1163, 1283, 1699)) AND (pickup_location_id NOT IN (48, 50, 164, 230)) AND (dropoff_location_id NOT IN (48, 50, 164, 230)); 
 
+/* Targeting viewers of Hamilton and segmenting them geographically */
+CREATE TABLE rrodgers_theatre_pickups_by_lat_lon_hour_weather200 AS
+SELECT 
+    date_trunc('week', pickup_datetime) AS week_start,
+    EXTRACT(hour FROM pickup_datetime) AS pickup_hour,
+    dropoff_location_id, 
+    CASE WHEN (w.precipitation+w.snow_depth+w.snowfall) > 7 
+        THEN 'bad_weather' 
+        ELSE 'good_weather' 
+    END AS weather_condition, 
+    ROUND(dropoff_longitude, 3) AS dropoff_lon, 
+    ROUND(dropoff_latitude, 3) AS dropoff_lat, 
+    COUNT(*) AS vehicle_count, AVG(tip_amount) AS avg_tip_amount,
+    AVG(passenger_count) AS avg_passenger_per_taxi,
+    AVG(total_amount) AS avg_fare,
+    AVG(dropoff_datetime - pickup_datetime) AS avg_ride_duration
+FROM trips,central_park_weather_observations w
+WHERE w.date = date(pickup_datetime) AND
+ST_DWithin(pickup, ST_SetSRID(ST_Point(-73.9867549662, 
+40.75903145), 4326), 200) AND ((EXTRACT(hour FROM pickup_datetime) = 21 AND EXTRACT(minute FROM pickup_datetime)
+>= 40) OR (EXTRACT(hour FROM pickup_datetime) = 22 AND EXTRACT(minute FROM pickup_datetime)
+<= 20))  AND tip_amount>1 AND passenger_count>=2 AND  (EXTRACT(dow FROM pickup_datetime) IN (2, 4)) GROUP BY 1,2,3,4,5,6;
+
 /* Targeting viewers of Chicago and segmenting them geographically */
 CREATE TABLE ambassador_theatre_pickups_by_lat_lon_hour_weather AS
 SELECT 
